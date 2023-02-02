@@ -26,7 +26,7 @@ public class CanadaCanadaCanadaTest {
         input[0] = "/home/aidan/codinShit/CS4433Project1WORKING/java/src/main/resources/Friends.csv";
         input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output";
 
-        TaskC amazing = new TaskC();
+        TaskD amazing = new TaskD();
         amazing.debug(input);
     }
 }
