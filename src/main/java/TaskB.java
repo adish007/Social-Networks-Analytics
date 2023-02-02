@@ -14,7 +14,10 @@ import java.io.IOException;
 public class TaskB {
 
     public static class BOneMapper extends Mapper<Object, Text, Text, Text> {
+        @Override
+        protected void map(Object key, Text value, Mapper<Object, Text, Text, Text>.Context context) throws IOException, InterruptedException {
 
+        }
     }
 
     public static class BTwoMapper extends Mapper<Object, Text, Text, Text> {
