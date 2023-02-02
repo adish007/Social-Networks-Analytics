@@ -4,13 +4,38 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import java.io.IOException;
 
 public class TaskB {
 
     public static class BOneMapper extends Mapper<Object, Text, Text, Text> {
 
+    }
+
+    public static class BTwoMapper extends Mapper<Object, Text, Text, Text> {
+
+    }
+
+    public static class IntSumReducer
+            extends Reducer<Text,IntWritable,Text,IntWritable> {
+        /**
+         *
+         * @param key
+         * @param values
+         * @param context
+         * @throws IOException
+         * @throws InterruptedException
+         */
+        @Override
+        protected void reduce(Text key, Iterable<IntWritable> values, Reducer<Text, IntWritable, Text, IntWritable>.Context context)
+                throws IOException, InterruptedException {
+            super.reduce(key, values, context);
+        }
     }
 
     public void debug(String[] args) throws Exception {
@@ -21,8 +46,9 @@ public class TaskB {
         job.setMapperClass(BOneMapper.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, BOneMapper.class);
+        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, BOneMapper.class);
+        FileOutputFormat.setOutputPath(job, new Path(args[2]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
@@ -34,8 +60,9 @@ public class TaskB {
         job.setMapperClass(BOneMapper.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, BOneMapper.class);
+        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, BOneMapper.class);
+        FileOutputFormat.setOutputPath(job, new Path(args[2]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }

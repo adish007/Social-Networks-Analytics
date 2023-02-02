@@ -12,13 +12,13 @@ import java.io.IOException;
 public class CanadaCanadaCanada {
 
     public static class CanadizerMapper
-            extends Mapper<Object, Text, Text, IntWritable> {
+            extends Mapper<Object, Text, Text, Text> {
 
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
             String[] vals = value.toString().split(",");
             if ("CanadaCanadaCanada".equals(vals[2])){
-                context.write(new Text(vals[1] + " LIKES " + vals[4]), new IntWritable(Integer.parseInt(vals[0])));
+                context.write(new Text(vals[1]), new Text(vals[4]));
             }
         }
     }
