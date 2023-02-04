@@ -1,11 +1,11 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
@@ -13,49 +13,50 @@ import java.io.IOException;
 public class TaskG {
 
     public static class AccessMapper
-            extends Mapper<Object,Text,IntWritable, IntWritable>{
-        private final IntWritable out = new IntWritable(-1);
+            extends Mapper<Object,Text,Text, Text>{
         @Override
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] vals = value.toString().split(",");
-            /*int val = new Integer(vals[4]).intValue();
-            System.out.println(((Object)val).getClass().getName());*/
-            context.write(new IntWritable(new Integer(vals[0]).intValue()), new IntWritable(new Integer(vals[4]).intValue()));
+/*            int val = new Integer(vals[4]).intValue();
+            System.out.println(val);*/
+            context.write(new Text(vals[1]), new Text(vals[4]));
         }
     }
 
-    public static class RecentAccessReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable>{
+    public static class PageMapper extends Mapper<Object, Text, Text, Text>{
+        private final static Text neg = new Text("-1");
         @Override
-        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context)
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] vals = value.toString().split(",");
+/*            int val = new Integer(vals[0]).intValue();
+            System.out.println(val);*/
+            context.write(new Text(vals[0]), neg);
+        }
+    }
+
+    public static class RecentAccessReducer
+            extends Reducer<Text, Text, Text, Text>{
+
+        @Override
+        protected void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
-            int temp;
-
-
-            IntWritable out = new IntWritable(700000);
-            System.out.println("Loops through!");
-            for (IntWritable val : values){
-                if (val.get() > out.get()){
-                    out.set(val.get());
+            int max = -2;
+            for (Text i : values){
+                int temp = new Integer(i.toString()).intValue();
+                if (temp > max){
+                    max = temp;
                 }
             }
-            if (out.get() > 700000){
-                System.out.println(key.toString());
-                context.write(new IntWritable(key.get()), new IntWritable(1));
+            if (max < 800000){
+                context.write(key, new Text("Is Inactive"));
             }
         }
     }
 
-  /*  public static class PageMapper extends Mapper<Object, Text, Text, Text>{
-
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            System.out.println(PageMapper.class.getName());
-            String[] vals = value.toString().split(",");
-            context.write(new Text(vals[1]), new IntWritable(new Integer(vals[4]).intValue()));
-        }
-    }
 
 
+    /*
     public static class ActiveReducer extends Reducer<Text,Text,Text,Text>{
 
         private final Text inactive = new Text(" Is Inactive");
@@ -78,53 +79,25 @@ public class TaskG {
 
 
     public void debug(String[] args) throws Exception {
-        Configuration conf1 = new Configuration();
-        Job job1 = Job.getInstance(conf1,"Job1");
-        job1.setJarByClass(TaskG.class);
-        job1.setNumReduceTasks(1);
-        job1.setMapperClass(AccessMapper.class);
-        //job1.setCombinerClass(RecentAccessReducer.class);
-        job1.setReducerClass(RecentAccessReducer.class);
-        job1.setOutputKeyClass(IntWritable.class);
-        job1.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job1, new Path(args[0]));
-        Path outputPath = new Path(args[1]);
+        Configuration conf = new Configuration();
 
-        FileOutputFormat.setOutputPath(job1, outputPath);
-        outputPath.getFileSystem(conf1).delete(outputPath);
-        FileOutputFormat.setOutputPath(job1, new Path(args[1]));
-
-        System.exit(job1.waitForCompletion(true) ? 0 : 1);
-        /*job1.waitForCompletion(true);*/
-
-        /*Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "TaskG");
         job.setJarByClass(TaskG.class);
-        job.setMapperClass(PageMapper.class);
+        job.setReducerClass(RecentAccessReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        job.setReducerClass(ActiveReducer.class);
 
-        job.setInputFormatClass(TextInputFormat.class);
-        FileInputFormat.addInputPaths(job, args[0]+","+args[2]);
-
-        MultipleInputs.addInputPath(job, new Path(args[0]),TextInputFormat.class, PageMapper.class);
-        MultipleInputs.addInputPath(job, new Path(args[1]),TextInputFormat.class, AccessMapper.class);
-
+        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, AccessMapper.class);
+        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, PageMapper.class);
+        Path outputPath = new Path(args[2]);
+        FileOutputFormat.setOutputPath(job, outputPath);
+        outputPath.getFileSystem(conf).delete(outputPath);
 
 
-        Path outputPath2 = new Path(args[3]);
+        FileOutputFormat.setOutputPath(job, new Path(args[2]));
 
-        FileOutputFormat.setOutputPath(job, outputPath2);
-        outputPath.getFileSystem(conf).delete(outputPath2);
-        FileOutputFormat.setOutputPath(job, new Path(args[3]));*/
-
-
-        //System.exit(job1.waitForCompletion(true) ? 0 : 1);
-
-
-
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
     public static void main(String[] args) throws Exception{

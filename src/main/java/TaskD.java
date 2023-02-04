@@ -36,22 +36,6 @@ public class TaskD {
         }
     }
 
-/*    public class FriendReduce
-            extends Reducer<Text, Text, Text, Text>{
-        private Text result = new Text();
-        @Override
-        protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            System.out.println(this.getClass().getName());
-
-            int sum = 0;
-            for (Text val : values){
-                sum += new Integer(val.toString()).valueOf(val.toString());
-            }
-            result.set(""+sum);
-            context.write(key, result);
-        }
-    }*/
-
     public static class NameReduce
             extends Reducer<Text, Text, Text, Text>{
 
@@ -91,7 +75,7 @@ public class TaskD {
         MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, TaskD.NameMap.class);
         Path outputPath = new Path(args[2]);
         FileOutputFormat.setOutputPath(job, outputPath);
-        outputPath.getFileSystem(conf).delete(outputPath, true);
+        outputPath.getFileSystem(conf).delete(outputPath);
 
 
         FileOutputFormat.setOutputPath(job, new Path(args[2]));
