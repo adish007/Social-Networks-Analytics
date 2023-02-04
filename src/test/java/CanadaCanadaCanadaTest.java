@@ -41,4 +41,14 @@ public class CanadaCanadaCanadaTest {
         TaskG amazing = new TaskG();
         amazing.debug(input);
     }
+    @Test
+    public void TaskH() throws Exception{
+        String[] input = new String[2];
+        input[0] = "/home/aidan/codinShit/CS4433Project1WORKING/java/src/main/resources/Friends.csv";
+        input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output";
+
+        TaskC amazing = new TaskC();
+        amazing.debug(input);
+    }
+
 }
