@@ -16,14 +16,10 @@ public class CanadaCanadaCanada {
 
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
-
             String[] vals = value.toString().split(",");
             if ("CanadaCanadaCanada".equals(vals[2])){
                 context.write(new Text(vals[1]), new Text(vals[4]));
             }
-
-
-
         }
     }
 

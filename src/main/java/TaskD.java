@@ -15,23 +15,22 @@ public class TaskD {
     /*
     This class takes the list of friends and then outputs a map where key = userID, 1
      */
-    public class FriendMap extends Mapper<Object, Text, Text, Text>{
+    public static class FriendMap extends Mapper<Object, Text, Text, Text>{
         protected final Text one = new Text("a");
 
         @Override
-        protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            System.out.println("Test!");
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+
 
             String[] vals = value.toString().split(",");
             context.write(new Text(vals[2]), one);
         }
     }
 
-    public class NameMap extends Mapper<Object, Text, Text, Text>{
+    public static class NameMap extends Mapper<Object, Text, Text, Text>{
 
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            System.out.println("Test2!");
             String[] vals = value.toString().split(",");
             context.write(new Text(vals[0]), new Text(vals[1]));
         }
@@ -53,7 +52,7 @@ public class TaskD {
         }
     }*/
 
-    public class NameReduce
+    public static class NameReduce
             extends Reducer<Text, Text, Text, Text>{
 
         protected final Text one = new Text("a");
@@ -79,7 +78,6 @@ public class TaskD {
     }
 
     public void debug(String args[]) throws Exception{
-        System.out.println("sanity check");
         Configuration conf = new Configuration();
 
         Job job = Job.getInstance(conf, "TaskD");
@@ -93,7 +91,7 @@ public class TaskD {
         MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, TaskD.NameMap.class);
         Path outputPath = new Path(args[2]);
         FileOutputFormat.setOutputPath(job, outputPath);
-        outputPath.getFileSystem(conf).delete(outputPath, false);
+        outputPath.getFileSystem(conf).delete(outputPath, true);
 
 
         FileOutputFormat.setOutputPath(job, new Path(args[2]));
