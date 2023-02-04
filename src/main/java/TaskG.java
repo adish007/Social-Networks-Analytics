@@ -17,6 +17,7 @@ public class TaskG {
         private final IntWritable out = new IntWritable(-1);
         @Override
         protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {
+            System.out.println("Test");
             String[] vals = value.toString().split(",");
             try {
                 new Integer("a").intValue();
@@ -74,7 +75,7 @@ public class TaskG {
         job.setInputFormatClass(TextInputFormat.class);
 
 
-        FileInputFormat.addInputPaths(job, new Path(args[0])+","+new Path(args[1]));
+        FileInputFormat.addInputPath(job, new Path(args[0]));
         //MultipleInputs.addInputPath(job, new Path(args[1]),TextInputFormat.class, AccessMapper.class);
         Path outputPath = new Path(args[2]);
 
