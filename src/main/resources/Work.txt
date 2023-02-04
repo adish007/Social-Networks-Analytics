@@ -1,0 +1,3 @@
+4a. Just mapping everything and seeing if one is the same as ur own nationalies
+4b. Map all Facebook pages and then reduce to the top eight. Then return ID, name, adn Nationality
+4c.
