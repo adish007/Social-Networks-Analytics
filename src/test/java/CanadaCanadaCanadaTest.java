@@ -45,10 +45,10 @@ public class CanadaCanadaCanadaTest {
     public void TaskH() throws Exception{
         String[] input = new String[2];
         input[0] = "/home/aidan/codinShit/CS4433Project1WORKING/java/src/main/resources/Friends.csv";
-        input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output";
+        input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output/taskH.txt";
 
-        TaskC amazing = new TaskC();
-        amazing.debug(input);
+        TaskH amazing = new TaskH();
+        amazing.main(input);
     }
 
 }
