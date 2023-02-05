@@ -5,67 +5,131 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
 public class TaskB {
 
-    public static class BOneMapper extends Mapper<Object, Text, Text, Text> {
-        @Override
-        protected void map(Object key, Text value, Mapper<Object, Text, Text, Text>.Context context) throws IOException, InterruptedException {
+    private static int[] largestValues;
+    private static int[] largestID;
+    static boolean contains(IntWritable key){
+        for (int k : largestID){
+           if (k == key.get()){
+               return true;
+           }
+        }
+        return false;
+    }
+    private static void test(){
+        for (int i = 0; i < 8; i++){
+            System.out.println("Value: " + largestValues[i]+ "\t\t" + "ID: " + largestID[i]);
+        }
+        System.out.println("\n");
+    }
+    static void add(int key, int value){
+        if (value > largestValues[7]){
+            System.out.println("WANTS TO ENTER: " + value);
+            System.out.println("Is in:");
+            test();
+            int place = -1;
+            for (int i = 0; i < largestValues.length; i++){
+                if (largestValues[i] < value){
+                    place = i;
+                    break;
+                }
+            }
+            int idPlaceholder = largestID[place];
 
+            int placeHolder = largestValues[place];
+            largestValues[place] = value;
+            largestID[place] = key;
+            for (int i = place+1; i < largestValues.length; i++){
+                place = largestValues[i];
+                largestValues[i] = placeHolder;
+                placeHolder = place;
+                place = largestID[i];
+                largestID[i] = idPlaceholder;
+                idPlaceholder = place;
+            }
         }
     }
 
-    public static class BTwoMapper extends Mapper<Object, Text, Text, Text> {
-
+    public static class AccessMap extends Mapper<Object, Text, IntWritable, Text>{
+        private static final Text one = new Text("");
+        @Override
+        protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] vals = value.toString().split(",");
+            context.write(new IntWritable(new Integer(vals[2]).intValue()), one);
+        }
     }
 
     public static class IntSumReducer
-            extends Reducer<Text,IntWritable,Text,IntWritable> {
-        /**
-         *
-         * @param key
-         * @param values
-         * @param context
-         * @throws IOException
-         * @throws InterruptedException
-         */
+            extends Reducer<IntWritable,Text,IntWritable,Text> {
+        private Text result = new Text();
         @Override
-        protected void reduce(Text key, Iterable<IntWritable> values, Reducer<Text, IntWritable, Text, IntWritable>.Context context)
-                throws IOException, InterruptedException {
-            super.reduce(key, values, context);
+        public void reduce(IntWritable key, Iterable<Text> values,
+                           Context context
+        ) throws IOException, InterruptedException {
+            int sum = 0;
+            for (Text val : values) {
+                sum ++;
+            }
+
+            add(key.get(), sum);
+            result.set(""+sum);
+            context.write(key, result);
+        }
+
+
+    }
+
+    public static class nameMapper extends Mapper<Object, Text, IntWritable, Text>{
+
+        @Override
+        protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] vals = value.toString().split(",");
+            IntWritable id = new IntWritable(new Integer(vals[0]).intValue());
+            if (contains(id)) {
+                context.write(id, new Text(", " + vals[1] + ", " + vals[2]));
+            }
         }
     }
 
-    public void debug(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "TaskB");
-        job.setNumReduceTasks(0);
-        job.setJarByClass(TaskB.class);
-        job.setMapperClass(BOneMapper.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, BOneMapper.class);
-        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, BOneMapper.class);
-        FileOutputFormat.setOutputPath(job, new Path(args[2]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
-    }
 
-    public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "TaskB");
-        job.setNumReduceTasks(0);
-        job.setJarByClass(TaskB.class);
-        job.setMapperClass(BOneMapper.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, BOneMapper.class);
-        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, BOneMapper.class);
-        FileOutputFormat.setOutputPath(job, new Path(args[2]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+        largestValues = new int[8];
+        largestID = new int[8];
+
+        Configuration c1 = new Configuration();
+        Job job1 = Job.getInstance(c1, "TaskB1");
+        job1.setJarByClass(TaskB.class);
+        job1.setReducerClass(IntSumReducer.class);
+        job1.setOutputValueClass(Text.class);
+        job1.setOutputKeyClass(IntWritable.class);
+        job1.setMapperClass(AccessMap.class);
+
+        FileInputFormat.addInputPath(job1, new Path(args[0]));
+        Path outputPath = new Path(args[2]);
+        FileOutputFormat.setOutputPath(job1, outputPath);
+        outputPath.getFileSystem(c1).delete(outputPath);
+        FileOutputFormat.setOutputPath(job1, new Path(args[2]));
+
+        job1.waitForCompletion(true);
+
+        Configuration c2 = new Configuration();
+        Job job2 = Job.getInstance(c2, "TaskB2");
+        job2.setJarByClass(TaskB.class);
+        job2.setOutputValueClass(Text.class);
+        job2.setOutputKeyClass(IntWritable.class);
+        job2.setMapperClass(nameMapper.class);
+
+        FileInputFormat.addInputPath(job2, new Path(args[1]));
+        outputPath = new Path(args[3]);
+        FileOutputFormat.setOutputPath(job2, outputPath);
+        outputPath.getFileSystem(c2).delete(outputPath);
+        FileOutputFormat.setOutputPath(job2, new Path(args[3]));
+        System.exit(job2.waitForCompletion(true) ? 0 : 1);
     }
 }
