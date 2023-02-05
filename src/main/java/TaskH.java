@@ -29,7 +29,6 @@ public class TaskH {
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
-            System.out.println("System");
             IntWritable count = new IntWritable(0);
             while (values.iterator().hasNext()){
                 values.iterator().next();
