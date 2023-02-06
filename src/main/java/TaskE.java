@@ -40,7 +40,7 @@ public class TaskE {
             }
             int uniquePagesCounter = uniquePages.size();
             //might need boolean flag
-            endResult.set("Total Access: "+ pagesAccessCount + "\tDistinct Acccess" + uniquePagesCounter);
+            endResult.set("Total Access: "+ pagesAccessCount + "\tDistinct Acccess: " + uniquePagesCounter);
             context.write(key, endResult);
         }
     }

@@ -18,12 +18,8 @@ public class TaskG {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] vals = value.toString().split(",");
-            try{
-                context.write(new IntWritable(new Integer(vals[1]).intValue()), new IntWritable(new Integer(vals[4]).intValue()));
-            } catch (Exception E){
-                System.out.println(value.toString());
-                E.printStackTrace();
-            }
+            context.write(new IntWritable(new Integer(vals[1]).intValue()), new IntWritable(new Integer(vals[4]).intValue()));
+
         }
     }
 
@@ -32,11 +28,7 @@ public class TaskG {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] vals = value.toString().split(",");
-            try{
-                context.write(new IntWritable(new Integer(vals[0]).intValue()), zero);
-            } catch (Exception E){
-                E.printStackTrace();
-            }
+            context.write(new IntWritable(new Integer(vals[0]).intValue()), zero);
         }
     }
 
