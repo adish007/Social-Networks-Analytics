@@ -19,7 +19,7 @@ public class TaskE {
             // we need to figure out first what page is accessing what other page
             // what distinct pages are accessed
             // how many times each page is accessed
-
+            System.out.println("Mapping Favs");
             String byWho = vals[1];
             String whatPage = vals[2];
             byWhoO.set(byWho);
@@ -55,6 +55,9 @@ public class TaskE {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
+        Path outputPath = new Path(args[1]);
+        FileOutputFormat.setOutputPath(job, outputPath);
+        outputPath.getFileSystem(conf).delete(outputPath);
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true)? 0 : 1);
 

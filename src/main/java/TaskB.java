@@ -30,9 +30,6 @@ public class TaskB {
     }
     static void add(int key, int value){
         if (value > largestValues[7]){
-            System.out.println("WANTS TO ENTER: " + value);
-            System.out.println("Is in:");
-            test();
             int place = -1;
             for (int i = 0; i < largestValues.length; i++){
                 if (largestValues[i] < value){

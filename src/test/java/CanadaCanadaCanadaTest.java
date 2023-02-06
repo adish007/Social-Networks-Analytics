@@ -68,7 +68,6 @@ public class CanadaCanadaCanadaTest {
         input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/src/main/resources/AccessLog.csv";
         input[2] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output/taskG";
 
-
         TaskG amazing = new TaskG();
         amazing.debug(input);
     }
