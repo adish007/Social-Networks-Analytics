@@ -9,19 +9,15 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TaskB {
 
+    private static Map<Integer, BitSet> people;
     private static int[] largestValues;
     private static int[] largestID;
-    static boolean isInTopEight(IntWritable key){
-        for (int k : largestID){
-           if (k == key.get()){
-               return true;
-           }
-        }
-        return false;
-    }
     static void addToTopEight(int key, int value){
         if (value > largestValues[7]){
             int place = -1;
@@ -77,13 +73,21 @@ public class TaskB {
     }
 
     public static class nameMapper extends Mapper<Object, Text, IntWritable, Text>{
-
+        private final static IntWritable putKey = new IntWritable();
+        private final static Text out = new Text();
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] vals = value.toString().split(",");
-            IntWritable id = new IntWritable(new Integer(vals[0]).intValue());
-            if (isInTopEight(id)) {
-                context.write(id, new Text(", " + vals[1] + ", " + vals[2]));
+            Integer id = new Integer(vals[0]).intValue();
+            if (people.size() == 0){
+                for (int k : largestID){
+                    people.put(new Integer(k), new BitSet());
+                }
+            }
+            if (people.containsKey(id)) {
+                putKey.set(id);
+                out.set(vals[1]+vals[2]);
+                context.write(putKey, out);
             }
         }
     }
@@ -93,6 +97,7 @@ public class TaskB {
         long start = System.currentTimeMillis();
         largestValues = new int[8];
         largestID = new int[8];
+        people = new HashMap<>();
 
         Configuration c1 = new Configuration();
         Job job1 = Job.getInstance(c1, "TaskB1");

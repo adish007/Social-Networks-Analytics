@@ -48,7 +48,6 @@ public class TaskC {
         job.setJarByClass(TaskC.class);
         job.setMapperClass(CountryCounterMapper.class);
         job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
@@ -67,7 +66,6 @@ public class TaskC {
         job.setJarByClass(TaskC.class);
         job.setMapperClass(CountryCounterMapper.class);
         job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));

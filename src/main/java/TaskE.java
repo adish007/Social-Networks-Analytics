@@ -33,7 +33,7 @@ public class TaskE {
         private Text endResult = new Text();
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException{
             int pagesAccessCount = 0;
-            Set<String> uniquePages = new HashSet<String>();
+            Set<String> uniquePages = new HashSet<>();
             for(Text val: values){
                 pagesAccessCount++;
                 uniquePages.add(val.toString());
