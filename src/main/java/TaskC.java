@@ -61,6 +61,7 @@ public class TaskC {
     }
 
     public static void main(String[] args) throws Exception{
+        long start = System.currentTimeMillis();
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "TaskC");
         job.setJarByClass(TaskC.class);
@@ -75,7 +76,10 @@ public class TaskC {
         FileOutputFormat.setOutputPath(job, outputPath);
         outputPath.getFileSystem(conf).delete(outputPath);
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        boolean finished = job.waitForCompletion(true);
+        long end = System.currentTimeMillis();
+        System.out.println("Total Time: " + ((end-start)/1000));
+        System.exit(finished ? 0 : 1);
     }
 
 }

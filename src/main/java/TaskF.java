@@ -80,6 +80,7 @@ public class TaskF {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+        long start = System.currentTimeMillis();
         Configuration conf = new Configuration();
         Job j1 = Job.getInstance(conf, "TaskF");
         j1.setJarByClass(TaskF.class);
@@ -92,6 +93,9 @@ public class TaskF {
         FileOutputFormat.setOutputPath(j1, outputPath);
         outputPath.getFileSystem(conf).delete(outputPath);
         FileOutputFormat.setOutputPath(j1, new Path(args[2]));
-        System.exit(j1.waitForCompletion(true) ? 0 : 1);
+        boolean finished = j1.waitForCompletion(true);
+        long end = System.currentTimeMillis();
+        System.out.println("Total Time: " + ((end-start)/1000));
+        System.exit(finished ? 0 : 1);
     }
 }

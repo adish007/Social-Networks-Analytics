@@ -81,9 +81,26 @@ public class TaskG {
     }
 
     public static void main(String[] args) throws Exception{
-        TaskG task =  new TaskG();
-        task.debug(new String[]{"/home/aidan/codinShit/CS4433Project1WORKING/java/MyPage.csv",
-                "/home/aidan/codinShit/CS4433Project1WORKING/java/AccessLog.csv",
-                "/home/aidan/codinShit/CS4433Project1WORKING/java/output/taskG"});
+        long start = System.currentTimeMillis();
+        Configuration conf = new Configuration();
+
+        Job job = Job.getInstance(conf, "TaskG");
+        job.setJarByClass(TaskG.class);
+        job.setReducerClass(RecentAccessReducer.class);
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(IntWritable.class);
+
+
+        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, PageMapper.class);
+        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, AccessMapper.class);
+        Path outputPath = new Path(args[2]);
+        FileOutputFormat.setOutputPath(job, outputPath);
+        outputPath.getFileSystem(conf).delete(outputPath);
+        FileOutputFormat.setOutputPath(job, new Path(args[2]));
+
+        boolean finished = job.waitForCompletion(true);
+        long end = System.currentTimeMillis();
+        System.out.println("Total Time: " + ((end-start)/1000));
+        System.exit(finished ? 0 : 1);
     }
 }

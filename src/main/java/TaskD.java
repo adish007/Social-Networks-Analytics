@@ -84,10 +84,29 @@ public class TaskD {
     }
 
     public static void main(String[] args)  throws Exception{
-        TaskD a = new TaskD();
-        a.debug(new String[]{"/home/aidan/codinShit/CS4433Project1WORKING/java/MyPage.csv",
-                "/home/aidan/codinShit/CS4433Project1WORKING/java/Friends.csv",
-                "/home/aidan/codinShit/CS4433Project1WORKING/java/output"});
+        long start = System.currentTimeMillis();
+        Configuration conf = new Configuration();
+
+        Job job = Job.getInstance(conf, "TaskD");
+        job.setJarByClass(TaskD.class);
+        job.setReducerClass(TaskD.NameReduce.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+
+
+        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, TaskD.FriendMap.class);
+        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, TaskD.NameMap.class);
+        Path outputPath = new Path(args[2]);
+        FileOutputFormat.setOutputPath(job, outputPath);
+        outputPath.getFileSystem(conf).delete(outputPath);
+
+
+        FileOutputFormat.setOutputPath(job, new Path(args[2]));
+
+        boolean finished = job.waitForCompletion(true);
+        long end = System.currentTimeMillis();
+        System.out.println("Total Time: " + ((end-start)/1000));
+        System.exit(finished ? 0 : 1);
 
     }
 

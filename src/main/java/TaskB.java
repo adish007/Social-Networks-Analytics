@@ -96,6 +96,7 @@ public class TaskB {
 
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+        long start = System.currentTimeMillis();
         largestValues = new int[8];
         largestID = new int[8];
 
@@ -127,6 +128,9 @@ public class TaskB {
         FileOutputFormat.setOutputPath(job2, outputPath);
         outputPath.getFileSystem(c2).delete(outputPath);
         FileOutputFormat.setOutputPath(job2, new Path(args[3]));
-        System.exit(job2.waitForCompletion(true) ? 0 : 1);
+        boolean finished = job2.waitForCompletion(true);
+        long end = System.currentTimeMillis();
+        System.out.println("Total Time: " + ((end-start)/1000));
+        System.exit(finished ? 0 : 1);
     }
 }
