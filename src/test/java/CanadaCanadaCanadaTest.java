@@ -73,10 +73,11 @@ public class CanadaCanadaCanadaTest {
     }
     @Test
     public void TaskH() throws Exception{
-        //1 Second
-        String[] input = new String[2];
+        //42 Seconds
+        String[] input = new String[3];
         input[0] = "/home/aidan/codinShit/CS4433Project1WORKING/java/src/main/resources/Friends.csv";
-        input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output/taskH";
+        input[1] = "/home/aidan/codinShit/CS4433Project1WORKING/java/src/main/resources/MyPage.csv";
+        input[2] = "/home/aidan/codinShit/CS4433Project1WORKING/java/output/taskH";
 
         TaskH.main(input);
     }

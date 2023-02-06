@@ -14,7 +14,7 @@ public class TaskB {
 
     private static int[] largestValues;
     private static int[] largestID;
-    static boolean contains(IntWritable key){
+    static boolean isInTopEight(IntWritable key){
         for (int k : largestID){
            if (k == key.get()){
                return true;
@@ -22,13 +22,7 @@ public class TaskB {
         }
         return false;
     }
-    private static void test(){
-        for (int i = 0; i < 8; i++){
-            System.out.println("Value: " + largestValues[i]+ "\t\t" + "ID: " + largestID[i]);
-        }
-        System.out.println("\n");
-    }
-    static void add(int key, int value){
+    static void addToTopEight(int key, int value){
         if (value > largestValues[7]){
             int place = -1;
             for (int i = 0; i < largestValues.length; i++){
@@ -54,6 +48,7 @@ public class TaskB {
     }
 
     public static class AccessMap extends Mapper<Object, Text, IntWritable, Text>{
+
         private static final Text one = new Text("");
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -73,8 +68,7 @@ public class TaskB {
             for (Text val : values) {
                 sum ++;
             }
-
-            add(key.get(), sum);
+            addToTopEight(key.get(), sum);
             result.set(""+sum);
             context.write(key, result);
         }
@@ -88,7 +82,7 @@ public class TaskB {
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] vals = value.toString().split(",");
             IntWritable id = new IntWritable(new Integer(vals[0]).intValue());
-            if (contains(id)) {
+            if (isInTopEight(id)) {
                 context.write(id, new Text(", " + vals[1] + ", " + vals[2]));
             }
         }
